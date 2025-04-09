@@ -18,29 +18,27 @@
       text-align: center;
       font-size: 2rem;
       font-weight: bold;
-      margin-bottom: 2rem;
+      margin-bottom: 1.5rem;
       letter-spacing: 1px;
     }
-    .form-container {
-      max-width: 1000px;
-      margin: auto;
-      background-color: #1f1f2e;
-      border-radius: 12px;
-      padding: 2rem;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-    }
-    h2 {
+    .header {
       text-align: center;
-      margin-bottom: 2rem;
+      font-size: 1.5rem;
       font-weight: 600;
+      margin-bottom: 1.5rem;
     }
+    .form-container {
+  display: none;
+}
     table {
       width: 100%;
-      border-collapse: collapse;
+      border-collapse: separate;
+      border-spacing: 0;
+      overflow: hidden;
       margin-bottom: 2rem;
     }
     th, td {
-      padding: 0.75rem;
+      padding: 0.5rem;
       text-align: center;
       border: 1px solid #444;
     }
@@ -48,12 +46,26 @@
       background-color: #333;
       font-weight: bold;
     }
-    input[type="text"] {
-      padding: 0.5rem;
-      border-radius: 6px;
+    td input[type="text"] {
+      padding: 0.4rem;
       border: none;
-      width: 90%;
+      width: 100%;
       font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      background-color: white;
+      color: #333;
+    }
+    .small-col {
+      width: 50px;
+    }
+    .medium-col {
+      width: 90px;
+    }
+    .wide-col {
+      width: auto;
+    }
+    .button-section {
+      text-align: center;
     }
     button {
       padding: 0.8rem 2rem;
@@ -64,36 +76,51 @@
       color: white;
       font-weight: bold;
       cursor: pointer;
-      display: block;
-      margin: auto;
       transition: transform 0.2s ease;
     }
     button:hover {
       transform: scale(1.05);
     }
+    @media (max-width: 600px) {
+      .form-container {
+        padding: 1rem;
+      }
+      .header {
+        font-size: 1.2rem;
+      }
+      td input[type="text"] {
+        font-size: 0.85rem;
+      }
+      th, td {
+        font-size: 0.8rem;
+        padding: 0.4rem;
+      }
+    }
   </style>
 </head>
 <body>
   <div class="branding">Digital Sun Media</div>
+  <div class="header">Leave Reason for {{ emp_name }} ({{ month }})</div>
+  <form action="/submit" method="post">
   <div class="form-container">
-    <h2>Leave Reason for {{ emp_name }} ({{ month }})</h2>
-    <form action="/submit" method="post">
-      <input type="hidden" name="emp_name" value="{{ emp_name }}">
-      <input type="hidden" name="month" value="{{ month }}">
-      <input type="hidden" name="num_rows" value="{{ absent_days|length }}">
-      <table>
-        <tr><th>S.No</th><th>Date</th><th>Day</th><th>Reason</th></tr>
-        {% for sno, date, day in absent_days %}
-        <tr>
-          <td>{{ sno }}</td>
-          <td><input type="text" name="date_{{ loop.index0 }}" value="{{ date }}" readonly></td>
-          <td><input type="text" name="day_{{ loop.index0 }}" value="{{ day }}" readonly></td>
-          <td><input type="text" name="reason_{{ loop.index0 }}" required></td>
-        </tr>
-        {% endfor %}
-      </table>
-      <button type="submit">Generate PDF</button>
-    </form>
+    <input type="hidden" name="emp_name" value="{{ emp_name }}">
+    <input type="hidden" name="month" value="{{ month }}">
+    <input type="hidden" name="num_rows" value="{{ absent_days|length }}">
   </div>
+  <table style="margin-left: auto; margin-right: auto;">
+    <tr><th class="small-col">S.No</th><th class="medium-col">Date</th><th class="medium-col">Day</th><th class="wide-col">Reason</th></tr>
+    {% for sno, date, day in absent_days %}
+    <tr>
+      <td class="small-col">{{ sno }}</td>
+      <td class="medium-col"><input type="text" name="date_{{ loop.index0 }}" value="{{ date }}" readonly></td>
+      <td class="medium-col"><input type="text" name="day_{{ loop.index0 }}" value="{{ day }}" readonly></td>
+      <td class="wide-col"><input type="text" name="reason_{{ loop.index0 }}" required></td>
+    </tr>
+    {% endfor %}
+  </table>
+  <div class="button-section">
+    <button type="submit">Generate PDF</button>
+  </div>
+</form>
 </body>
 </html>
