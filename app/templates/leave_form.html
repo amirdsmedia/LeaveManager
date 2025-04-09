@@ -112,8 +112,8 @@
     {% for sno, date, day in absent_days %}
     <tr>
       <td class="small-col">{{ sno }}</td>
-      <td class="small-col"><input type="text" name="date_{{ loop.index0 }}" value="{{ date }}" readonly></td>
-      <td class="medium-col"><input type="text" name="day_{{ loop.index0 }}" value="{{ day }}" readonly></td>
+      <td class="small-col">{{ date }}</td>
+      <td class="medium-col">{{ day[:3] }}</td>
       <td class="wide-col"><input type="text" name="reason_{{ loop.index0 }}" required></td>
     </tr>
     {% endfor %}
