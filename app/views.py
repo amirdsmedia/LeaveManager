@@ -17,6 +17,7 @@ def index():
 def upload():
     uploaded_file = request.files['report_pdf']
     if uploaded_file.filename.endswith('.pdf'):
+        os.makedirs(UPLOAD_FOLDER, exist_ok=True)
         file_path = os.path.join(UPLOAD_FOLDER, uploaded_file.filename)
         uploaded_file.save(file_path)
         with fitz.open(file_path) as doc:
