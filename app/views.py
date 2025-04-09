@@ -62,7 +62,9 @@ def index():
     if request.method == 'POST':
         file = request.files['report_pdf']
         if file and file.filename.endswith('.pdf'):
-            path = os.path.join("app/static/uploads", file.filename)
+            upload_folder = "app/static/uploads"
+            os.makedirs(upload_folder, exist_ok=True)  # ✅ Ensures folder exists even on fresh deploy
+            path = os.path.join(upload_folder, file.filename)
             file.save(path)
             with fitz.open(path) as doc:
                 text = "".join([p.get_text() for p in doc])
