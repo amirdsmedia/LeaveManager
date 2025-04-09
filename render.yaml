@@ -2,8 +2,5 @@ services:
   - type: web
     name: leave-report-app
     env: python
-    buildCommand: ""
-    startCommand: gunicorn run:app
-    envVars:
-      - key: PORT
-        value: 10000
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn run:app"
