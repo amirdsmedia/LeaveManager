@@ -3,7 +3,7 @@ import fitz
 from fpdf import FPDF
 import calendar
 from datetime import datetime
-from flask import Blueprint, render_template, request, send_file
+from flask import Blueprint, render_template, request, send_file, current_app
 import re
 
 main = Blueprint('main', __name__)
@@ -87,6 +87,6 @@ def submit():
         reasons.append(reason)
 
     file_name = f"{emp_name.replace(' ', '_')}_{month}_LeaveReport.pdf"
-    output_path = os.path.join("app/static", file_name)
+    output_path = os.path.join(current_app.root_path, "static", file_name)
     generate_pdf(emp_name, month, absent_days, reasons, output_path)
     return send_file(output_path, as_attachment=True)
