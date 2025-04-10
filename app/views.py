@@ -32,9 +32,11 @@ def extract_absences_from_text(text):
 
     return emp_name, month_clean, absent_days
 
-def generate_pdf(emp_name, month, absent_days, reasons, output_path):
+def generate_pdf(emp_name, month, absent_days, reasons, sunday_days, sunday_reasons, output_path):
     pdf = FPDF()
     pdf.add_page()
+
+    # Header
     pdf.set_font("Arial", "B", 16)
     pdf.cell(0, 10, "Digital Sun Media", ln=True, align="C")
     pdf.cell(0, 10, "Leave Report", ln=True, align="C")
@@ -42,6 +44,8 @@ def generate_pdf(emp_name, month, absent_days, reasons, output_path):
     pdf.cell(0, 10, f"Name: {emp_name}", ln=True)
     pdf.cell(0, 10, f"Month: {month}", ln=True)
     pdf.ln(5)
+
+    # Absence Table (Non-Sundays)
     pdf.set_font("Arial", "B", 12)
     pdf.cell(20, 10, "S.No", 1)
     pdf.cell(40, 10, "Date", 1)
@@ -55,6 +59,28 @@ def generate_pdf(emp_name, month, absent_days, reasons, output_path):
         pdf.cell(40, 10, day, 1)
         pdf.cell(90, 10, reason, 1)
         pdf.ln()
+
+    # Optional: Add Sunday Table if any reason is filled
+    if any(r.strip() for r in sunday_reasons):
+        pdf.add_page()
+        pdf.set_font("Arial", "B", 14)
+        pdf.cell(0, 10, "Sunday Work Report", ln=True, align="C")
+        pdf.ln(5)
+        pdf.set_font("Arial", "B", 12)
+        pdf.cell(20, 10, "S.No", 1)
+        pdf.cell(40, 10, "Date", 1)
+        pdf.cell(40, 10, "Day", 1)
+        pdf.cell(90, 10, "Reason", 1)
+        pdf.ln()
+        pdf.set_font("Arial", "", 12)
+        for i, (sno, date, day) in enumerate(sunday_days):
+            reason = sunday_reasons[i]
+            pdf.cell(20, 10, str(i+1), 1)
+            pdf.cell(40, 10, date, 1)
+            pdf.cell(40, 10, day, 1)
+            pdf.cell(90, 10, reason, 1)
+            pdf.ln()
+
     pdf.output(output_path)
 
 @main.route('/', methods=['GET', 'POST'])
@@ -77,16 +103,34 @@ def submit():
     emp_name = request.form.get("emp_name")
     month = request.form.get("month")
     num_rows = int(request.form.get("num_rows"))
+
+    # Regular (non-Sunday) absences
     absent_days = []
     reasons = []
     for i in range(num_rows):
         date = request.form.get(f"date_{i}")
         day = request.form.get(f"day_{i}")
         reason = request.form.get(f"reason_{i}")
-        absent_days.append((i+1, date, day))
-        reasons.append(reason)
+        if date and day:
+            absent_days.append((i+1, date, day))
+            reasons.append(reason)
+
+    # Sunday work entries
+    sunday_days = []
+    sunday_reasons = []
+    i = 0
+    while True:
+        date = request.form.get(f"sunday_date_{i}")
+        day = request.form.get(f"sunday_day_{i}")
+        reason = request.form.get(f"sunday_reason_{i}")
+        if not date:
+            break
+        sunday_days.append((i+1, date, day))
+        sunday_reasons.append(reason if reason else "")
+        i += 1
 
     file_name = f"{emp_name.replace(' ', '_')}_{month}_LeaveReport.pdf"
     output_path = os.path.join(current_app.root_path, "static", file_name)
-    generate_pdf(emp_name, month, absent_days, reasons, output_path)
+
+    generate_pdf(emp_name, month, absent_days, reasons, sunday_days, sunday_reasons, output_path)
     return send_file(output_path, as_attachment=True)
