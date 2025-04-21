@@ -52,10 +52,18 @@
       background-color: white;
       color: #333;
     }
-    .small-col { width: 30px; }
-    .medium-col { width: 50px; }
-    .wide-col { width: auto; }
-    .button-section { text-align: center; }
+    .small-col {
+      width: 30px;
+    }
+    .medium-col {
+      width: 50px;
+    }
+    .wide-col {
+      width: auto;
+    }
+    .button-section {
+      text-align: center;
+    }
     button {
       padding: 0.8rem 2rem;
       font-size: 1rem;
@@ -67,11 +75,20 @@
       cursor: pointer;
       transition: transform 0.2s ease;
     }
-    button:hover { transform: scale(1.05); }
+    button:hover {
+      transform: scale(1.05);
+    }
     @media (max-width: 600px) {
-      .header { font-size: 1.2rem; }
-      td input[type="text"] { font-size: 0.85rem; }
-      th, td { font-size: 0.8rem; padding: 0.4rem; }
+      .header {
+        font-size: 1.2rem;
+      }
+      td input[type="text"] {
+        font-size: 0.85rem;
+      }
+      th, td {
+        font-size: 0.8rem;
+        padding: 0.4rem;
+      }
     }
   </style>
 </head>
@@ -83,9 +100,7 @@
     <input type="hidden" name="emp_name" value="{{ emp_name }}">
     <input type="hidden" name="month" value="{{ month }}">
     <input type="hidden" name="num_rows" value="{{ absent_days|length }}">
-    <input type="hidden" name="num_sandwich" value="{{ sandwich_sundays|length }}">
 
-    <!-- Absent Days Table -->
     <div style="max-width: 100vw; margin: 0 auto;">
       <table>
         <tr>
@@ -98,54 +113,58 @@
         {% for sno, date, day in absent_days if day != 'Sunday' %}
         <tr>
           <td class="small-col">{{ sno }}</td>
-          <td class="small-col">{{ date }}<input type="hidden" name="date_{{ loop.index0 }}" value="{{ date }}"></td>
-          <td class="medium-col">{{ day[:3] }}<input type="hidden" name="day_{{ loop.index0 }}" value="{{ day[:3] }}"></td>
-          <td class="wide-col"><input type="text" name="reason_{{ loop.index0 }}" required placeholder="Enter reason"></td>
-          <td class="small-col"><input type="checkbox" name="issue_{{ loop.index0 }}"></td>
+          <td class="small-col">
+            {{ date }}
+            <input type="hidden" name="date_{{ loop.index0 }}" value="{{ date }}">
+          </td>
+          <td class="medium-col">
+            {{ day[:3] }}
+            <input type="hidden" name="day_{{ loop.index0 }}" value="{{ day[:3] }}">
+          </td>
+          <td class="wide-col">
+            <input type="text" name="reason_{{ loop.index0 }}" required placeholder="Enter reason">
+          </td>
+          <td class="small-col">
+            <input type="checkbox" name="issue_{{ loop.index0 }}">
+          </td>
         </tr>
         {% endfor %}
       </table>
     </div>
 
-    <!-- Advance -->
     <div style="margin-bottom: 2rem; max-width: 500px; margin-inline: auto; text-align: center;">
       <label for="advance" style="font-weight: 600; display: block; margin-bottom: 0.5rem;">Advance Received (if any):</label>
       <input type="number" name="advance" id="advance" min="0" step="100" placeholder="Enter advance amount" style="padding: 0.5rem; border-radius: 6px; border: none; width: 100%; max-width: 300px;">
     </div>
 
-    <!-- Sunday Work -->
     <div style="max-width: 100vw; margin: 2rem auto;">
       <h3 style="text-align:center; margin-bottom: 1rem;">Sunday Work Details</h3>
       <table>
-        <tr><th class="small-col">S.No</th><th class="small-col">Date</th><th class="medium-col">Day</th><th class="wide-col">Reason (if worked)</th></tr>
+        <tr>
+          <th class="small-col">S.No</th>
+          <th class="small-col">Date</th>
+          <th class="medium-col">Day</th>
+          <th class="wide-col">Reason (if worked)</th>
+        </tr>
         {% for sno, date, day in sunday_days %}
         <tr>
           <td class="small-col">{{ sno }}</td>
-          <td class="small-col">{{ date }}<input type="hidden" name="sunday_date_{{ loop.index0 }}" value="{{ date }}"></td>
-          <td class="medium-col">Sun<input type="hidden" name="sunday_day_{{ loop.index0 }}" value="Sun"></td>
-          <td class="wide-col"><input type="text" name="sunday_reason_{{ loop.index0 }}"></td>
+          <td class="small-col">
+            {{ date }}
+            <input type="hidden" name="sunday_date_{{ loop.index0 }}" value="{{ date }}">
+          </td>
+          <td class="medium-col">
+            Sun
+            <input type="hidden" name="sunday_day_{{ loop.index0 }}" value="Sun">
+          </td>
+          <td class="wide-col">
+            <input type="text" name="sunday_reason_{{ loop.index0 }}">
+          </td>
         </tr>
         {% endfor %}
       </table>
     </div>
 
-    <!-- Sandwich Sundays -->
-    <div style="max-width: 100vw; margin: 2rem auto;">
-      <h3 style="text-align:center; margin-bottom: 1rem;">Sandwich Sunday Review</h3>
-      <table>
-        <tr><th class="small-col">S.No</th><th class="small-col">Date</th><th class="medium-col">Day</th><th class="wide-col">Reason (if worked)</th></tr>
-        {% for sno, date, day in sandwich_sundays %}
-        <tr>
-          <td class="small-col">{{ sno }}</td>
-          <td class="small-col">{{ date }}<input type="hidden" name="sandwich_date_{{ loop.index0 }}" value="{{ date }}"></td>
-          <td class="medium-col">Sun<input type="hidden" name="sandwich_day_{{ loop.index0 }}" value="Sun"></td>
-          <td class="wide-col"><input type="text" name="sandwich_reason_{{ loop.index0 }}" placeholder="Enter reason if worked"></td>
-        </tr>
-        {% endfor %}
-      </table>
-    </div>
-
-    <!-- Submit -->
     <div class="button-section">
       <button type="submit">Generate PDF</button>
     </div>
