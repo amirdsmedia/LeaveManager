@@ -102,8 +102,9 @@ def index():
             with fitz.open(file_path) as doc:
                 text = "".join([p.get_text() for p in doc])
 
-            emp_name, month, absent_days = extract_absences_from_text(text)
-            return render_template("leave_form.html", emp_name=emp_name, month=month, absent_days=absent_days)
+            emp_name, month, absent_days, sunday_days = extract_absences_from_text(text)
+            return render_template("leave_form.html", emp_name=emp_name, month=month, absent_days=absent_days, sunday_days=sunday_days)
+
     return render_template("upload.html")
 
 @main.route('/submit', methods=['POST'])
