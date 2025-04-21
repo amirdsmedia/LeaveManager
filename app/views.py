@@ -170,8 +170,13 @@ def generate_pdf(emp_name, month, absent_days, reasons, sunday_days, sunday_reas
     pdf.set_font("Arial", "B", 12)
     pdf.cell(20, 10, "S.No", 1)
     pdf.cell(30, 10, "Date", 1)
-    pdf.cell(25, 10, "Day", 1)
-    pdf.cell(85, 10, "Reason", 1)
+    pdf.cell(25, 10, "Sun" if "Sunday" in day else day[:3], 1)
+    
+    if "Sandwich" in day:
+        pdf.cell(85, 10, "Sandwich Leave", 1)
+    else:
+        pdf.cell(85, 10, reason, 1)
+
     pdf.cell(30, 10, "Issue?", 1)
     pdf.ln()
     pdf.set_font("Arial", "", 12)
