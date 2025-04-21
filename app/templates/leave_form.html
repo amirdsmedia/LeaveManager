@@ -107,17 +107,23 @@
     <input type="hidden" name="month" value="{{ month }}">
     <input type="hidden" name="num_rows" value="{{ absent_days|length }}">
   </div>
-  <div style="max-width: 100vw; margin: 0 auto;"><table style="width: 100%;">
-    <th class="small-col">Report Issue</th>
+<div style="max-width: 100vw; margin: 0 auto;">
+  <table style="width: 100%;">
+    <tr>
+      <th class="small-col">S.No</th>
+      <th class="small-col">Date</th>
+      <th class="medium-col">Day</th>
+      <th class="small-col">Report Issue</th>
+    </tr>
     {% for sno, date, day in absent_days if day != 'Sunday' %}
-<tr>
-  <td class="small-col">{{ sno }}</td>
-  <td class="small-col">{{ date }}<input type="hidden" name="date_{{ loop.index0 }}" value="{{ date }}"></td>
-  <td class="medium-col">{{ day[:3] }}<input type="hidden" name="day_{{ loop.index0 }}" value="{{ day[:3] }}"></td>
-  <td class="small-col"><input type="checkbox" name="issue_{{ loop.index0 }}"></td>
-
-</tr>
-{% endfor %}
+    <tr>
+      <td class="small-col">{{ sno }}</td>
+      <td class="small-col">{{ date }}<input type="hidden" name="date_{{ loop.index0 }}" value="{{ date }}"></td>
+      <td class="medium-col">{{ day[:3] }}<input type="hidden" name="day_{{ loop.index0 }}" value="{{ day[:3] }}"></td>
+      <td class="small-col"><input type="checkbox" name="issue_{{ loop.index0 }}"></td>
+    </tr>
+    {% endfor %}
+    
 {% for sno, date, day in visible_rows %}
 <tr>
   <td class="small-col">{{ sno }}</td>
