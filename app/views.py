@@ -10,11 +10,16 @@ main = Blueprint('main', __name__)
 
 def extract_absences_from_text(text):
     lines = text.splitlines()
+
+    # Extract employee name
     name_index = lines.index("Name")
     present_index = lines.index("Present")
     emp_name = " ".join(lines[name_index + 1:present_index]).strip()
 
+    # Extract month
     match = re.search(r"[A-Za-z]+-\d{4}", text)
+    if not match:
+        raise ValueError("Could not extract month and year.")
     month_clean = match.group(0)
     today = datetime.strptime(month_clean, "%B-%Y")
 
@@ -45,7 +50,7 @@ def generate_pdf(emp_name, month, absent_days, reasons, sunday_days, sunday_reas
     pdf.cell(0, 10, f"Month: {month}", ln=True)
     pdf.ln(5)
 
-    # Absence Table (Non-Sundays)
+    # Absence Table
     pdf.set_font("Arial", "B", 12)
     pdf.cell(20, 10, "S.No", 1)
     pdf.cell(40, 10, "Date", 1)
@@ -60,7 +65,7 @@ def generate_pdf(emp_name, month, absent_days, reasons, sunday_days, sunday_reas
         pdf.cell(90, 10, reason, 1)
         pdf.ln()
 
-    # Optional: Add Sunday Table if any reason is filled
+    # Sunday Table
     if any(r.strip() for r in sunday_reasons):
         pdf.add_page()
         pdf.set_font("Arial", "B", 14)
@@ -88,12 +93,14 @@ def index():
     if request.method == 'POST':
         file = request.files['report_pdf']
         if file and file.filename.endswith('.pdf'):
-            upload_folder = "app/static/uploads"
-            os.makedirs(upload_folder, exist_ok=True)  # ✅ Ensures folder exists even on fresh deploy
-            path = os.path.join(upload_folder, file.filename)
-            file.save(path)
-            with fitz.open(path) as doc:
+            upload_folder = os.path.join(current_app.root_path, "static/uploads")
+            os.makedirs(upload_folder, exist_ok=True)
+            file_path = os.path.join(upload_folder, file.filename)
+            file.save(file_path)
+
+            with fitz.open(file_path) as doc:
                 text = "".join([p.get_text() for p in doc])
+
             emp_name, month, absent_days = extract_absences_from_text(text)
             return render_template("leave_form.html", emp_name=emp_name, month=month, absent_days=absent_days)
     return render_template("upload.html")
@@ -104,18 +111,18 @@ def submit():
     month = request.form.get("month")
     num_rows = int(request.form.get("num_rows"))
 
-    # Regular (non-Sunday) absences
+    # Non-Sunday absences
     absent_days = []
     reasons = []
     for i in range(num_rows):
         date = request.form.get(f"date_{i}")
         day = request.form.get(f"day_{i}")
         reason = request.form.get(f"reason_{i}")
-        if date and day:
+        if date and reason:
             absent_days.append((i+1, date, day))
             reasons.append(reason)
 
-    # Sunday work entries
+    # Sundays
     sunday_days = []
     sunday_reasons = []
     i = 0
@@ -129,8 +136,6 @@ def submit():
         sunday_reasons.append(reason if reason else "")
         i += 1
 
-    file_name = f"{emp_name.replace(' ', '_')}_{month}_LeaveReport.pdf"
-    output_path = os.path.join(current_app.root_path, "static", file_name)
-
+    output_path = os.path.join(current_app.root_path, "static", f"{emp_name.replace(' ', '_')}_{month}_LeaveReport.pdf")
     generate_pdf(emp_name, month, absent_days, reasons, sunday_days, sunday_reasons, output_path)
     return send_file(output_path, as_attachment=True)
