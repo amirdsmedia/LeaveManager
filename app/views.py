@@ -136,18 +136,19 @@ def generate_pdf(emp_name, month, absent_days, reasons, sunday_days, sunday_reas
     # Absence Table
     pdf.set_font("Arial", "B", 12)
     pdf.cell(20, 10, "S.No", 1)
-    pdf.cell(40, 10, "Date", 1)
-    pdf.cell(40, 10, "Day", 1)
-    pdf.cell(90, 10, "Reason", 1)
-    pdf.cell(40, 10, "Issue?", 1)
+    pdf.cell(30, 10, "Date", 1)
+    pdf.cell(25, 10, "Day", 1)
+    pdf.cell(85, 10, "Reason", 1)
+    pdf.cell(30, 10, "Issue?", 1)
     pdf.ln()
     pdf.set_font("Arial", "", 12)
     for i, (sno, date, day, reason) in enumerate(absent_days):
         pdf.cell(20, 10, str(i + 1), 1)
-        pdf.cell(40, 10, date, 1)
-        pdf.cell(40, 10, day, 1)
-        pdf.cell(90, 10, reason, 1)
-        pdf.cell(40, 10, "Yes" if date in issue_days else "", 1)
+        pdf.cell(30, 10, date, 1)
+        pdf.cell(25, 10, day, 1)
+        pdf.cell(85, 10, reason, 1)
+        pdf.cell(30, 10, "Yes" if date in issue_days else "", 1)
+
         pdf.ln()
 
     # Sunday Table
