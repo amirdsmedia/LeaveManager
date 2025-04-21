@@ -10,13 +10,10 @@ main = Blueprint('main', __name__)
 
 def extract_absences_from_text(text):
     lines = text.splitlines()
-
-    # Extract employee name
     name_index = lines.index("Name")
     present_index = lines.index("Present")
     emp_name = " ".join(lines[name_index + 1:present_index]).strip()
 
-    # Extract month
     match = re.search(r"[A-Za-z]+-\d{4}", text)
     if not match:
         raise ValueError("Could not extract month and year.")
@@ -25,17 +22,21 @@ def extract_absences_from_text(text):
 
     status_index = lines.index("Status")
     status_values = lines[status_index + 1:status_index + 32]
-    day_start_index = lines.index("1")
-    days = lines[day_start_index:day_start_index + 31]
 
     absent_days = []
+    sunday_days = []
     for i, status in enumerate(status_values):
-        if status == "A":
-            day_num = days[i]
-            day_name = calendar.day_name[datetime(today.year, today.month, i+1).weekday()]
-            absent_days.append((i+1, day_num, day_name))
+        day_date = i + 1
+        try:
+            weekday = datetime(today.year, today.month, day_date).strftime("%A")
+        except ValueError:
+            continue
+        if weekday == "Sunday":
+            sunday_days.append((day_date, f"{day_date}", weekday))
+        elif status == "A":
+            absent_days.append((day_date, f"{day_date}", weekday))
 
-    return emp_name, month_clean, absent_days
+    return emp_name, month_clean, absent_days, sunday_days
 
 def generate_pdf(emp_name, month, absent_days, reasons, sunday_days, sunday_reasons, output_path):
     pdf = FPDF()
