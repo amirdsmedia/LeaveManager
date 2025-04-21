@@ -25,8 +25,6 @@ def extract_absences_from_text(text):
 
     absent_days = []
     sunday_days = []
-    sandwich_sundays = []
-
     for i, status in enumerate(status_values):
         day_date = i + 1
         try:
@@ -34,35 +32,12 @@ def extract_absences_from_text(text):
         except ValueError:
             continue
         if weekday == "Sunday":
-            sunday_days.append((day_date, f"{day_date}", "Sunday"))
-
-    # Detect sandwich Sundays
-    for i in range(1, len(status_values) - 1):
-        prev_status = status_values[i - 1]
-        next_status = status_values[i + 1]
-
-        day_date = i + 1
-        try:
-            weekday = datetime(today.year, today.month, day_date).strftime("%A")
-        except ValueError:
-            continue
-
-        if weekday == "Sunday" and prev_status == "A" and next_status == "A":
-            sandwich_sundays.append((day_date, f"{day_date}", "Sunday"))
-
-    # Actual absents (exclude Sundays)
-    for i, status in enumerate(status_values):
-        day_date = i + 1
-        try:
-            weekday = datetime(today.year, today.month, day_date).strftime("%A")
-        except ValueError:
-            continue
-        if status == "A" and weekday != "Sunday":
+            sunday_days.append((day_date, f"{day_date}", weekday))
+        elif status == "A":
             absent_days.append((day_date, f"{day_date}", weekday))
 
-    return emp_name, month_clean, absent_days, sunday_days, sandwich_sundays
+    return emp_name, month_clean, absent_days, sunday_days
 
-    
 @main.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
@@ -170,15 +145,10 @@ def generate_pdf(emp_name, month, absent_days, reasons, sunday_days, sunday_reas
     for i, (sno, date, day, reason) in enumerate(absent_days):
         pdf.cell(20, 10, str(i + 1), 1)
         pdf.cell(30, 10, date, 1)
-        short_day = "Sun" if "Sunday" in day else day[:3]
-        pdf.cell(25, 10, short_day, 1)
-
-        if "Sandwich" in day:
-            pdf.cell(85, 10, "Sandwich Leave", 1)
-        else:
-            pdf.cell(85, 10, reason, 1)
-
+        pdf.cell(25, 10, day, 1)
+        pdf.cell(85, 10, reason, 1)
         pdf.cell(30, 10, "Yes" if date in issue_days else "", 1)
+
         pdf.ln()
 
     # Sunday Table
@@ -214,11 +184,9 @@ def generate_pdf(emp_name, month, absent_days, reasons, sunday_days, sunday_reas
     pdf.cell(0, 10, f"Issue Reported Days: {len(issue_days)}", ln=True)
     pdf.cell(0, 10, f"Paid Leave (Office Provided): 1", ln=True)
     pdf.cell(0, 10, f"Working Sundays: {sum(1 for r in sunday_reasons if r.strip())}", ln=True)
-    deduction_effective = max(len(absent_days) - 1 - sum(1 for r in sunday_reasons if r.strip()) - len(issue_days), 0)
-    pdf.cell(0, 10, f"Leave Days Counted for Deduction: {deduction_effective}", ln=True)
+    pdf.cell(0, 10, f"Leave Days Counted for Deduction: {max(len(absent_days) - 1 - sum(1 for r in sunday_reasons if r.strip()) - len(issue_days), 0)}", ln=True)
     pdf.cell(0, 10, f"Deduction Amount: Rs. {deduction_amount}", ln=True)
     pdf.cell(0, 10, f"Advance Received: Rs. {advance}", ln=True)
     pdf.cell(0, 10, f"Final Salary to be Paid: Rs. {final_salary}", ln=True)
 
     pdf.output(output_path)
-
