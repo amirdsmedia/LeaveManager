@@ -25,6 +25,8 @@ def extract_absences_from_text(text):
 
     absent_days = []
     sunday_days = []
+    sandwich_days = []
+
     for i, status in enumerate(status_values):
         day_date = i + 1
         try:
@@ -33,11 +35,42 @@ def extract_absences_from_text(text):
             continue
         if weekday == "Sunday":
             sunday_days.append((day_date, f"{day_date}", weekday))
-        elif status == "A":
+
+    # Detect sandwich leave (Sunday between two As)
+    for i in range(1, len(status_values) - 1):
+        prev_status = status_values[i - 1]
+        curr_status = status_values[i]
+        next_status = status_values[i + 1]
+
+        day_date = i + 1
+        try:
+            weekday = datetime(today.year, today.month, day_date).strftime("%A")
+        except ValueError:
+            continue
+
+        if (
+            weekday == "Sunday"
+            and prev_status == "A"
+            and next_status == "A"
+            and (day_date, f"{day_date}", weekday) not in sunday_days
+        ):
+            sandwich_days.append((day_date, f"{day_date}", "Sunday (Sandwich)"))
+
+    # Real absents (excluding Sundays)
+    for i, status in enumerate(status_values):
+        day_date = i + 1
+        try:
+            weekday = datetime(today.year, today.month, day_date).strftime("%A")
+        except ValueError:
+            continue
+        if status == "A" and weekday != "Sunday":
             absent_days.append((day_date, f"{day_date}", weekday))
 
-    return emp_name, month_clean, absent_days, sunday_days
+    # Append sandwich Sundays to absents
+    absent_days += sandwich_days
 
+    return emp_name, month_clean, absent_days, sunday_days
+    
 @main.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
