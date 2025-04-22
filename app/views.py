@@ -175,7 +175,7 @@ def generate_pdf(emp_name, month, absent_days, reasons, sunday_days, sunday_reas
     # Salary Summary
     pdf.add_page()
     pdf.set_font("Arial", "B", 14)
-    pdf.cell(0, 10, "Salary Calculation Summary", ln=True, align="C")
+    pdf.cell(0, 10, "Approximate Salary Calculation Summary", ln=True, align="C")
     pdf.ln(5)
     pdf.set_font("Arial", "", 12)
     pdf.cell(0, 10, f"Base Salary: Rs. {base_salary}", ln=True)
