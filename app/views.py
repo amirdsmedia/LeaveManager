@@ -189,4 +189,11 @@ def generate_pdf(emp_name, month, absent_days, reasons, sunday_days, sunday_reas
     pdf.cell(0, 10, f"Advance Received: Rs. {advance}", ln=True)
     pdf.cell(0, 10, f"Final Salary to be Paid: Rs. {final_salary}", ln=True)
 
+    # Add red-colored note
+    pdf.ln(5)
+    pdf.set_text_color(255, 0, 0)  # Set text color to red
+    pdf.set_font("Arial", "B", 11)
+    pdf.cell(0, 10, "Note: This salary calculation is only approximate, actual salary may differ because of Sandwich Sundays.", ln=True)
+    pdf.set_text_color(0, 0, 0)  # Reset to black after the note
+
     pdf.output(output_path)
